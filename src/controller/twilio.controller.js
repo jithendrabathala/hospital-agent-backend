@@ -15,7 +15,7 @@ export const incomingCall = (req, res) => {
       url="${WS_URL}"
       welcomeGreeting="${WELCOME_GREETING}"
       ttsProvider="ElevenLabs"
-      voice="FGY2WhTYpPnrIDTdsKH5"
+      voice="81xnrLNObbKDEs179emP"
     />
   </Connect>
 </Response>`;
