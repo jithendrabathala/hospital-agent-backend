@@ -217,13 +217,24 @@ const tools = [
 ];
 
 /* ------------------ OpenAI Init ------------------ */
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY not set");
+// const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// if (!OPENAI_API_KEY) {
+//   throw new Error("OPENAI_API_KEY not set");
+// }
+
+/* ------------------ OpenAI Init with OpenRouter ------------------ */
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+if (!OPENROUTER_API_KEY) {
+  throw new Error("OPENROUTER_API_KEY not set");
 }
 
 const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
+  apiKey: OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  defaultHeaders: {
+    "HTTP-Referer": "http://localhost:3000", // required by OpenRouter
+    "X-Title": "Hospital Voice Agent",
+  },
 });
 
 /* Store active chat sessions */
@@ -288,7 +299,7 @@ wss.on("connection", (ws) => {
         });
 
         let completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "openai/gpt-4o-mini",
           messages: history,
           tools: tools,
           tool_choice: "auto",
