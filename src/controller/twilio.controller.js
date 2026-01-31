@@ -8,6 +8,8 @@ export const incomingCall = (req, res) => {
 
   console.log("Incoming call - generating TwiML response");
 
+  // add stt provider
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
@@ -15,7 +17,7 @@ export const incomingCall = (req, res) => {
       url="${WS_URL}"
       welcomeGreeting="${WELCOME_GREETING}"
       ttsProvider="ElevenLabs"
-      voice="81xnrLNObbKDEs179emP"
+      voice="STxLVfvNUAFB2Mhc218c"
     />
   </Connect>
 </Response>`;
