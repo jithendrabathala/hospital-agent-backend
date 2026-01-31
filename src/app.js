@@ -13,9 +13,9 @@ import {
   formatHospitalResponse,
 } from "./utils/hospitalUtils.js";
 import { createReservation, formatReservationResponse, validateReservationData } from "./utils/reservationUtils.js";
-import Customer from "./modules/customer.model.js";
-import Hospital from "./modules/hospital.model.js";
-import Reservation from "./modules/reservation.model.js";
+// import Customer from "./modules/customer.model.js";
+// import Hospital from "./modules/hospital.model.js";
+// import Reservation from "./modules/reservation.model.js";
 
 dotenv.config();
 
@@ -246,8 +246,12 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
 
 /* ------------------ WebSocket Logic ------------------ */
-wss.on("connection", (ws) => {
+wss.on("connection", (ws, req) => {
   let callSid = null;
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const callerNumber = url.searchParams.get("caller");
+
+  console.log("Incoming call from:", callerNumber);
 
   ws.on("message", async (raw) => {
     try {
@@ -262,6 +266,10 @@ wss.on("connection", (ws) => {
           {
             role: "system",
             content: SYSTEM_PROMPT,
+          },
+          {
+            role: "system",
+            content: `Caller Number: ${callerNumber}`,
           },
         ]);
 
@@ -361,6 +369,8 @@ wss.on("connection", (ws) => {
                     reason,
                   } = functionArgs;
 
+                  console.log("Creating reservation for caller:", callerNumber);
+
                   // Validate reservation data
                   const validation = validateReservationData({
                     customerName,
@@ -380,12 +390,13 @@ wss.on("connection", (ws) => {
                     // Create reservation using utility
                     const result = await createReservation(
                       customerName,
-                      customerPhone,
+                      customerPhone || callerNumber,
                       hospitalName,
                       appointmentType,
                       reservationDate,
                       timeSlot,
                       reason,
+                      callerNumber,
                     );
                     functionResponse = JSON.stringify(result);
                   }

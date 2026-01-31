@@ -1,6 +1,25 @@
 import Reservation from "../modules/reservation.model.js";
 import Customer from "../modules/customer.model.js";
 import Hospital from "../modules/hospital.model.js";
+import twilio from "twilio";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+const sendSms = async (to, body) => {
+  try {
+    await twilioClient.messages.create({
+      body,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to,
+    });
+    console.log(`SMS sent to ${to}`);
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+  }
+};
 
 // Create a new reservation
 export const createReservation = async (
@@ -11,6 +30,7 @@ export const createReservation = async (
   reservationDate,
   timeSlot,
   reason,
+  callerNumber,
 ) => {
   try {
     // Create or find customer
@@ -48,7 +68,15 @@ export const createReservation = async (
     });
 
     await reservation.save();
-    console.log("Reservation created:", reservation._id);
+    console.log("Reservation created:", reservation._id, "for caller:", callerNumber);
+
+    // Send SMS confirmation to customer if phone number is available
+    // const smsBody = `Hello ${customer.name}, your reservation at ${hospital.hospitalName} on ${reservationDate} at ${timeSlot} has been confirmed.`;
+    const smsBody = `\nDear ${customer.name}, your ${appointmentType} appointment at ${hospital.hospitalName} is confirmed.
+                      \n Date: ${reservationDate}
+                      \n Time: ${timeSlot}
+                      \n Reservation ID: ${reservation._id}.`;
+    await sendSms(callerNumber, smsBody);
 
     return {
       success: true,

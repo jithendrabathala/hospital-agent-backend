@@ -6,7 +6,9 @@ export const incomingCall = (req, res) => {
   console.log("WS_URL:", WS_URL);
   const WELCOME_GREETING = "Welcome to the Hospital Booking Agent. How can I assist you today?";
 
-  console.log("Incoming call - generating TwiML response");
+  const { body } = req;
+
+  const callerNumber = body.Caller;
 
   // add stt provider
 
@@ -14,7 +16,7 @@ export const incomingCall = (req, res) => {
 <Response>
   <Connect>
     <ConversationRelay
-      url="${WS_URL}"
+      url="${WS_URL}?caller=${encodeURIComponent(callerNumber)}"
       welcomeGreeting="${WELCOME_GREETING}"
       ttsProvider="ElevenLabs"
       voice="jqcCZkN6Knx8BJ5TBdYR"
